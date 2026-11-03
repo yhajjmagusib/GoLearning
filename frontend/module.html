@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn a GoLearning module, submit its assignment, and take its quiz.">
+    <title>Learning module | GoLearning</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css">
+    <link rel="stylesheet" href="module.css">
+    <script src="module.js" defer></script>
+</head>
+<body class="app-body">
+    <header class="app-header">
+        <a class="app-brand" href="dashboard.html"><img src="images/logo.png" alt=""> GoLearning</a>
+        <div class="header-actions">
+            <a href="dashboard.html">Dashboard</a>
+            <button id="logout-button" class="button button-secondary" type="button">Log out</button>
+        </div>
+    </header>
+    <main class="app-main">
+        <p><a href="dashboard.html">← Back to dashboard</a></p>
+        <p id="page-message" class="notice" role="status" aria-live="polite"></p>
+        <section id="module-content" hidden>
+            <p id="module-order" class="eyebrow"></p>
+            <h1 id="module-title"></h1>
+            <p id="module-description" class="lead"></p>
+            <section id="video-section" class="panel">
+                <h2>Video lesson</h2>
+                <div id="video-container"></div>
+            </section>
+            <section id="learning-notes-panel" class="panel learning-notes-panel">
+                <h2>Learning notes</h2>
+                <p id="learning-notes-message" class="muted"></p>
+                <a id="learning-notes-download" class="button button-secondary" hidden>
+                    <i class="fi fi-rr-download" aria-hidden="true"></i> Download PDF
+                </a>
+            </section>
+            <section class="panel">
+                <h2>Learning Objective</h2>
+                <div id="learning-objective" class="preserved-content"></div>
+            </section>
+            <section class="panel">
+                <h2>Video Lesson Summary</h2>
+                <div id="complete-lesson-content" class="preserved-content"></div>
+            </section>
+            <section id="legacy-lessons-section" class="panel" hidden>
+                <h2>Existing lesson topics</h2>
+                <div id="lesson-list" class="lesson-list"></div>
+            </section>
+            <section id="quiz-panel" class="panel quiz-panel">
+                <h2>Module quiz</h2>
+                <p>Pass the quiz and complete all required assignments to unlock the next module.</p>
+                <button id="open-quiz" type="button">Take quiz</button>
+                <p id="quiz-result" role="status"></p>
+            </section>
+            <section id="attempt-history-panel" class="panel">
+                <h2>Previous quiz attempts</h2>
+                <div id="attempt-history"></div>
+            </section>
+            <section class="panel">
+                <div class="section-heading module-section-heading">
+                    <h2>Assignments</h2>
+                    <button id="add-assignment-button" type="button" class="admin-only" hidden><i class="fi fi-rr-plus" aria-hidden="true"></i> Add Assignment</button>
+                </div>
+                <div id="assignment-list" class="assignment-list"></div>
+            </section>
+            <section id="module-certificate-panel" class="panel certificate-panel" hidden>
+                <h2>Module reward certificate</h2>
+                <p id="module-certificate-status" class="muted"></p>
+                <a id="module-certificate-download" class="button" hidden>
+                    <i class="fi fi-rr-download" aria-hidden="true"></i> Download module reward
+                </a>
+            </section>
+            <section id="admin-quiz-panel" class="panel admin-module-panel" hidden>
+                <div class="section-heading module-section-heading">
+                    <h2>Quiz questions</h2>
+                    <button id="add-question-button" type="button"><i class="fi fi-rr-plus" aria-hidden="true"></i> Add Question</button>
+                </div>
+                <div id="admin-question-list" class="module-management-list"></div>
+            </section>
+            <section id="admin-results-panel" class="panel admin-module-panel" hidden>
+                <h2>Quiz results</h2>
+                <div id="admin-results" class="record-list"></div>
+            </section>
+            <section id="admin-submissions-panel" class="panel admin-module-panel" hidden>
+                <h2>Assignment submissions</h2>
+                <div id="admin-submissions" class="record-list"></div>
+            </section>
+        </section>
+    </main>
+    <dialog id="quiz-dialog" class="quiz-dialog">
+        <form method="dialog" class="dialog-heading">
+            <h2>Module quiz</h2>
+            <button class="icon-button" aria-label="Close quiz">×</button>
+        </form>
+        <form id="quiz-form">
+            <p id="quiz-notice" class="notice notice-warning" hidden></p>
+            <p id="quiz-submit-result" class="notice" role="status" aria-live="polite" hidden></p>
+            <div id="quiz-questions"></div>
+            <div class="form-actions">
+                <button type="submit">Submit answers</button>
+                <button id="cancel-quiz" class="button-secondary" type="button">Cancel</button>
+            </div>
+        </form>
+    </dialog>
+    <dialog id="question-editor-dialog" class="management-dialog">
+        <div class="dialog-heading">
+            <h2 id="question-dialog-title">Add Quiz Question</h2>
+            <button class="icon-button" type="button" data-close-dialog aria-label="Close dialog"><i class="fi fi-rr-cross-small" aria-hidden="true"></i></button>
+        </div>
+        <form id="question-editor-form" class="management-form">
+            <input name="questionId" type="hidden">
+            <label>Question<textarea name="question" rows="3" maxlength="2000" required></textarea></label>
+            <label>Answer choices (one per line)<textarea name="answerChoices" rows="5" required></textarea></label>
+            <label>Correct answer (must match one choice)<input name="correctAnswer" maxlength="500" required></label>
+            <label>Question order<input name="questionOrder" type="number" min="1" max="65535" required></label>
+            <p class="dialog-message notice" role="alert" aria-live="polite"></p>
+            <div class="form-actions">
+                <button type="submit"><i class="fi fi-rr-disk" aria-hidden="true"></i> Save</button>
+                <button class="button-secondary" type="button" data-close-dialog><i class="fi fi-rr-cross-small" aria-hidden="true"></i> Cancel</button>
+            </div>
+        </form>
+    </dialog>
+    <dialog id="assignment-editor-dialog" class="management-dialog">
+        <div class="dialog-heading">
+            <h2 id="assignment-dialog-title">Add Assignment</h2>
+            <button class="icon-button" type="button" data-close-dialog aria-label="Close dialog"><i class="fi fi-rr-cross-small" aria-hidden="true"></i></button>
+        </div>
+        <form id="assignment-editor-form" class="management-form">
+            <input name="assignmentId" type="hidden">
+            <label>Title<input name="title" maxlength="160" required></label>
+            <label>Instructions
+                <textarea name="instructions" rows="5" required></textarea>
+                <div class="format-toolbar" role="toolbar" aria-label="Format assignment instructions">
+                    <button type="button" class="button-secondary" data-format="bold" aria-label="Bold selected text"><strong>B</strong></button>
+                    <button type="button" class="button-secondary" data-format="italic" aria-label="Italicize selected text"><em>I</em></button>
+                    <button type="button" class="button-secondary" data-format="checklist">Checklist</button>
+                    <button type="button" class="button-secondary" data-format="bullet">Bullet list</button>
+                    <button type="button" class="button-secondary" data-format="number">Numbered list</button>
+                </div>
+            </label>
+            <label class="check-label"><input name="isRequired" type="checkbox" checked> Required for progression</label>
+            <label class="check-label"><input name="requiresApproval" type="checkbox"> Requires administrator approval</label>
+            <label class="check-label"><input name="isActive" type="checkbox" checked> Active</label>
+            <p class="dialog-message notice" role="alert" aria-live="polite"></p>
+            <div class="form-actions">
+                <button type="submit"><i class="fi fi-rr-disk" aria-hidden="true"></i> Save</button>
+                <button class="button-secondary" type="button" data-close-dialog><i class="fi fi-rr-cross-small" aria-hidden="true"></i> Cancel</button>
+            </div>
+        </form>
+    </dialog>
+    <dialog id="review-dialog" class="management-dialog">
+        <div class="dialog-heading">
+            <h2>Review assignment</h2>
+            <button class="icon-button" type="button" data-close-dialog aria-label="Close dialog"><i class="fi fi-rr-cross-small" aria-hidden="true"></i></button>
+        </div>
+        <form id="review-form" class="management-form">
+            <input name="submissionId" type="hidden">
+            <label>Review status<select name="status"><option value="pending">Pending</option><option value="approved">Approved</option><option value="rejected">Rejected</option></select></label>
+            <label>Feedback
+                <textarea name="feedback" rows="3" maxlength="5000"></textarea>
+                <div class="format-toolbar" role="toolbar" aria-label="Format review feedback">
+                    <button type="button" class="button-secondary" data-format="bold" aria-label="Bold selected text"><strong>B</strong></button>
+                    <button type="button" class="button-secondary" data-format="italic" aria-label="Italicize selected text"><em>I</em></button>
+                    <button type="button" class="button-secondary" data-format="checklist">Checklist</button>
+                    <button type="button" class="button-secondary" data-format="bullet">Bullet list</button>
+                    <button type="button" class="button-secondary" data-format="number">Numbered list</button>
+                </div>
+            </label>
+            <p class="dialog-message notice" role="alert" aria-live="polite"></p>
+            <div class="form-actions">
+                <button type="submit"><i class="fi fi-rr-disk" aria-hidden="true"></i> Save review</button>
+                <button class="button-secondary" type="button" data-close-dialog><i class="fi fi-rr-cross-small" aria-hidden="true"></i> Cancel</button>
+            </div>
+        </form>
+    </dialog>
+</body>
+</html>

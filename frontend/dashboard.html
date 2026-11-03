@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Track your GoLearning course progress.">
+    <title>Dashboard | GoLearning</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/uicons-regular-rounded/css/uicons-regular-rounded.css">
+    <link rel="stylesheet" href="dashboard.css">
+    <script src="dashboard.js" defer></script>
+</head>
+<body class="app-body">
+    <header class="app-header">
+        <a class="app-brand" href="index.html"><img src="images/logo.png" alt=""> GoLearning</a>
+        <div class="header-actions">
+            <span id="welcome-name"></span>
+            <button id="logout-button" class="button button-secondary" type="button">Log out</button>
+        </div>
+    </header>
+    <main class="app-main">
+        <section class="page-heading">
+            <p class="eyebrow">YOUR LEARNING SPACE</p>
+            <h1 id="dashboard-title">Your dashboard</h1>
+            <p id="dashboard-intro">Your learning and progress, all in one place.</p>
+        </section>
+        <p id="page-message" class="notice" role="status" aria-live="polite"></p>
+        <section id="student-dashboard" hidden>
+            <div class="section-heading"><h2>Learning modules</h2><p id="progress-summary"></p></div>
+            <div class="course-progress">
+                <progress id="course-progress" max="100" value="0">0%</progress>
+                <span id="course-progress-label">0%</span>
+            </div>
+            <div id="module-cards" class="module-grid"></div>
+            <section id="overall-certificate-panel" class="panel certificate-panel">
+                <h2>Course completion certificate</h2>
+                <p id="overall-certificate-status" class="muted">Locked until all five modules and their required activities are complete.</p>
+                <a id="overall-certificate-download" class="button" href="/api/dashboard/certificate" hidden>
+                    <i class="fi fi-rr-award" aria-hidden="true"></i> Download overall certificate
+                </a>
+            </section>
+        </section>
+        <section id="admin-dashboard" hidden>
+            <div id="admin-totals" class="stats-grid"></div>
+            <section class="panel management-panel">
+                <div class="section-heading admin-section-heading">
+                    <h2>Modules</h2>
+                    <button id="add-module-button" type="button"><i class="fi fi-rr-plus" aria-hidden="true"></i> Add Module</button>
+                </div>
+                <div id="admin-module-list" class="record-list"></div>
+            </section>
+            <dialog id="add-module-dialog" class="management-dialog">
+                <div class="dialog-heading">
+                    <h2>Add Module</h2>
+                    <button class="icon-button" type="button" data-close-dialog aria-label="Close dialog"><i class="fi fi-rr-cross-small" aria-hidden="true"></i></button>
+                </div>
+                <form id="add-module-form" class="management-form">
+                    <div class="form-grid">
+                        <label>Title<input name="title" maxlength="160" required></label>
+                        <label>Module order<input name="moduleOrder" type="number" min="1" max="255" required></label>
+                        <label>Quiz passing score (%)<input name="passingScore" type="number" min="0" max="100" step="0.01" value="80" required></label>
+                        <label>YouTube URL (optional)<input name="youtubeVideoUrl" type="url" placeholder="https://www.youtube.com/watch?v=..."></label>
+                        <label data-second-video-field hidden>Second YouTube URL (Module 5 only)<input name="youtubeVideoUrl2" type="url" placeholder="https://www.youtube.com/watch?v=..."></label>
+                    </div>
+                    <label>Description<textarea name="description" rows="3" required></textarea></label>
+                    <label class="check-label"><input name="isActive" type="checkbox" checked> Active</label>
+                    <p class="dialog-message notice" role="alert" aria-live="polite"></p>
+                    <div class="form-actions">
+                        <button type="submit"><i class="fi fi-rr-disk" aria-hidden="true"></i> Save</button>
+                        <button class="button-secondary" type="button" data-close-dialog><i class="fi fi-rr-cross-small" aria-hidden="true"></i> Cancel</button>
+                    </div>
+                </form>
+            </dialog>
+            <dialog id="module-content-dialog" class="management-dialog">
+                <div class="dialog-heading">
+                    <h2 id="module-content-title">Add Module Lesson Content</h2>
+                    <button class="icon-button" type="button" data-close-dialog aria-label="Close dialog"><i class="fi fi-rr-cross-small" aria-hidden="true"></i></button>
+                </div>
+                <form id="module-content-form" class="management-form">
+                    <input name="moduleId" type="hidden">
+                    <div class="form-grid">
+                        <label>Module title<input name="title" maxlength="160" required></label>
+                        <label>Module order<input name="moduleOrder" type="number" min="1" max="255" required></label>
+                        <label>Quiz passing score (%)<input name="passingScore" type="number" min="0" max="100" step="0.01" required></label>
+                        <label>YouTube URL (optional)<input name="youtubeVideoUrl" type="url" placeholder="https://www.youtube.com/watch?v=..."></label>
+                        <label data-second-video-field hidden>Second YouTube URL (Module 5 only)<input name="youtubeVideoUrl2" type="url" placeholder="https://www.youtube.com/watch?v=..."></label>
+                    </div>
+                    <label>Module description<textarea name="description" rows="2" required></textarea></label>
+                    <label class="check-label"><input name="isActive" type="checkbox"> Active</label>
+                    <label>Learning Objective<textarea name="learningObjective" rows="3" minlength="2" maxlength="5000" placeholder="Enter the learning objective for this module..." required></textarea></label>
+                    <div class="lesson-editor">
+                        <label for="lesson-content-editor">Message / Full Lesson Content</label>
+                        <div id="lesson-format-toolbar" class="lesson-format-toolbar" role="toolbar" aria-label="Lesson formatting">
+                            <button type="button" data-format="bold" aria-label="Bold selected text"><strong>B</strong></button>
+                            <button type="button" data-format="bullet" aria-label="Add a bulleted list">• Bullet</button>
+                            <button type="button" data-format="dash" aria-label="Add a dash list">– Dash</button>
+                            <button type="button" data-format="number" aria-label="Add a numbered list">1. Number</button>
+                        </div>
+                        <textarea id="lesson-content-editor" name="lessonContent" class="long-content-field" minlength="1" maxlength="500000" placeholder="Write the complete lesson here, including explanations, examples, and important concepts..." aria-describedby="lesson-format-help" required></textarea>
+                        <p id="lesson-format-help" class="muted lesson-format-help">Select text and choose Bold, or click a list button to format lines. Blank lines separate paragraphs.</p>
+                    </div>
+                    <p class="dialog-message notice" role="alert" aria-live="polite"></p>
+                    <div class="form-actions">
+                        <button type="submit"><i class="fi fi-rr-disk" aria-hidden="true"></i> Save</button>
+                        <button class="button-secondary" type="button" data-close-dialog><i class="fi fi-rr-cross-small" aria-hidden="true"></i> Cancel</button>
+                    </div>
+                </form>
+            </dialog>
+            <dialog id="learning-notes-dialog" class="management-dialog">
+                <div class="dialog-heading">
+                    <h2 id="learning-notes-dialog-title">Module learning notes</h2>
+                    <button class="icon-button" type="button" data-close-dialog aria-label="Close dialog"><i class="fi fi-rr-cross-small" aria-hidden="true"></i></button>
+                </div>
+                <form id="learning-notes-form" class="management-form">
+                    <input name="moduleId" type="hidden">
+                    <p id="learning-notes-current" class="muted"></p>
+                    <label>PDF file<input name="pdf" type="file" accept="application/pdf,.pdf" required></label>
+                    <p id="learning-notes-limit" class="muted"></p>
+                    <p class="dialog-message notice" role="alert" aria-live="polite"></p>
+                    <div class="form-actions">
+                        <button type="submit"><i class="fi fi-rr-upload" aria-hidden="true"></i> Upload or replace</button>
+                        <button id="delete-learning-notes-button" class="button-danger" type="button" hidden><i class="fi fi-rr-trash" aria-hidden="true"></i> Delete PDF</button>
+                        <button class="button-secondary" type="button" data-close-dialog><i class="fi fi-rr-cross-small" aria-hidden="true"></i> Cancel</button>
+                    </div>
+                </form>
+            </dialog>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,366 @@
+:root {
+    color-scheme: light;
+    --ink: #172a25;
+    --muted: #586a63;
+    --green: #17684f;
+    --green-dark: #10513f;
+    --lime: #d7ed83;
+    --paper: #f3f5ef;
+    --surface: #fff;
+    --line: #dce5dc;
+    --danger: #a33b3b;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scrollbar-width: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+    display: none;
+}
+
+body {
+    display: grid;
+    min-height: 100vh;
+    margin: 0;
+    padding: 24px;
+    place-items: center;
+    background:
+        linear-gradient(rgba(13, 47, 38, 0.78), rgba(13, 47, 38, 0.82)),
+        url("images/golearning.jpg") center / cover no-repeat fixed;
+    color: var(--ink);
+    font-family: "DM Sans", Arial, sans-serif;
+}
+
+.auth-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.auth-card {
+    width: min(100%, 452px);
+    padding: clamp(30px, 6vw, 48px);
+    border: 1px solid rgba(255, 255, 255, 0.65);
+    border-radius: 10px;
+    background: var(--surface);
+    box-shadow: 0 24px 70px rgba(4, 25, 19, 0.28);
+}
+
+.brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 26px;
+}
+
+.brand img {
+    width: 76px;
+    height: 76px;
+    object-fit: contain;
+}
+
+.brand h1 {
+    margin: 12px 0 0;
+    color: var(--green-dark);
+    font-family: "Manrope", "DM Sans", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+
+h2 {
+    margin: 0;
+    color: var(--ink);
+    font-family: "Manrope", "DM Sans", sans-serif;
+    font-size: clamp(1.7rem, 5vw, 2rem);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    text-align: center;
+}
+
+.subtitle {
+    margin: 9px 0 26px;
+    color: var(--muted);
+    text-align: center;
+    font-size: 0.96rem;
+}
+
+.auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 19px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+label {
+    color: var(--ink);
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+input {
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    border: 1px solid #cbd8cf;
+    border-radius: 6px;
+    background: #fbfcfa;
+    color: var(--ink);
+    font: inherit;
+    outline: none;
+    transition: border-color 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+input::placeholder {
+    color: #788780;
+}
+
+input:focus {
+    border-color: var(--green);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(23, 104, 79, 0.14);
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    font-size: 0.9rem;
+}
+
+.remember-me {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.remember-me input {
+    width: 18px;
+    min-height: 18px;
+    accent-color: var(--green);
+}
+
+.form-row a,
+.switch-link a {
+    color: var(--green-dark);
+    font-weight: 700;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+}
+
+button {
+    min-height: 49px;
+    padding: 13px 18px;
+    border: 1px solid var(--green);
+    border-radius: 6px;
+    background: var(--green);
+    color: #fff;
+    font: inherit;
+    font-size: 0.98rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 160ms ease, transform 160ms ease;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    background: var(--green-dark);
+}
+
+button:focus-visible,
+a:focus-visible {
+    outline: 3px solid #8eaf36;
+    outline-offset: 3px;
+}
+
+.switch-link {
+    margin: 24px 0 0;
+    color: var(--muted);
+    font-size: 0.93rem;
+    text-align: center;
+    line-height: 1.6;
+}
+
+.form-message {
+    min-height: 1.2em;
+    margin: 0;
+    color: var(--danger);
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+.form-message:empty {
+    min-height: 0;
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: 16px;
+    }
+
+    .auth-card {
+        padding: 28px 22px;
+    }
+
+    .form-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-height: 680px) {
+    body {
+        padding-block: 12px;
+    }
+
+    .auth-card {
+        padding: 20px 26px;
+    }
+
+    .brand {
+        margin-bottom: 12px;
+    }
+
+    .brand img {
+        width: 54px;
+        height: 54px;
+    }
+
+    .brand h1 {
+        margin-top: 6px;
+    }
+
+    h2 {
+        font-size: 1.6rem;
+    }
+
+    .subtitle {
+        margin: 5px 0 14px;
+    }
+
+    .auth-form {
+        gap: 12px;
+    }
+
+    .input-group {
+        gap: 5px;
+    }
+
+    input {
+        min-height: 42px;
+        padding-block: 9px;
+    }
+
+    button {
+        min-height: 43px;
+        padding-block: 9px;
+    }
+
+    .switch-link {
+        margin-top: 13px;
+    }
+}
+
+@media (max-height: 480px) {
+    .auth-card {
+        padding: 14px 20px;
+    }
+
+    .brand {
+        margin-bottom: 7px;
+    }
+
+    .brand img {
+        width: 42px;
+        height: 42px;
+    }
+
+    .brand h1 {
+        margin-top: 3px;
+    }
+
+    h2 {
+        font-size: 1.4rem;
+    }
+
+    .subtitle {
+        margin: 3px 0 9px;
+    }
+
+    .auth-form {
+        gap: 9px;
+    }
+
+    .input-group {
+        gap: 3px;
+    }
+
+    input {
+        min-height: 38px;
+        padding-block: 7px;
+    }
+
+    button {
+        min-height: 40px;
+    }
+
+    .switch-link {
+        margin-top: 8px;
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-height: 360px) {
+    body {
+        padding-block: 6px;
+    }
+
+    .auth-card {
+        padding-block: 10px;
+    }
+
+    .brand img {
+        width: 36px;
+        height: 36px;
+    }
+
+    .auth-form {
+        gap: 6px;
+    }
+
+    .input-group {
+        gap: 1px;
+    }
+
+    input {
+        min-height: 34px;
+        padding-block: 5px;
+    }
+
+    button {
+        min-height: 36px;
+    }
+
+    .switch-link {
+        margin-top: 5px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        transition-duration: 0.01ms !important;
+    }
+}
