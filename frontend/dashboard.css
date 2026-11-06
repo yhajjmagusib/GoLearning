@@ -4,7 +4,7 @@
     --soft-ink: #00233d;
     --brand: #3d82a8;
     --brand-dark: #2b6687;
-    --paper: #00ea133a;
+    --paper: #edf6fb;
     --surface: #fbfdff;
     --line: #d5e5ef;
     --success: #2d728f;
@@ -279,4 +279,10 @@ button:hover, .button:hover { background: var(--brand-dark); color: white; }
     .dialog-heading h2 { font-size: 1.25rem; overflow-wrap: anywhere; }
     .long-content-field { min-height: 190px; }
     .lesson, .assignment-card, .module-management-item { padding: 14px; }
+    .record-row { width: 100%; min-width: 0; }
+    .module-row-info { width: 100%; }
+    .module-row-info span, .module-row-info strong { overflow-wrap: anywhere; }
+    .module-row-actions { width: 100%; min-width: 0; align-items: stretch; }
+    .module-row-actions > * { flex: 1 1 100%; width: 100%; min-width: 0; }
+    .module-row-actions .button, .module-row-actions button { justify-content: center; }
 }
