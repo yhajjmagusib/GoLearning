@@ -17,6 +17,9 @@ if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32
 
 const app = express();
 const frontendDirectory = path.join(__dirname, "..", "frontend");
+const crossOriginDeployment = process.env.NODE_ENV === "production"
+    || process.env.RENDER === "true"
+    || Boolean(process.env.FRONTEND_URL);
 
 function isAllowedOrigin(origin) {
     if (!origin) return false;
@@ -62,8 +65,8 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        sameSite: process.env.FRONTEND_URL ? "none" : "lax",
-        secure: process.env.NODE_ENV === "production" || Boolean(process.env.FRONTEND_URL),
+        sameSite: crossOriginDeployment ? "none" : "lax",
+        secure: crossOriginDeployment,
         maxAge: 8 * 60 * 60 * 1000
     }
 }));
