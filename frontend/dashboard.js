@@ -15,9 +15,10 @@ function element(tag, text, className) {
 
 async function api(url, options = {}) {
     const isFormData = options.body instanceof FormData;
-    const response = await fetch(url, {
+    const response = await fetch(apiUrl(url), {
         ...options,
         cache: "no-store",
+        credentials: "include",
         headers: { ...(options.body && !isFormData ? { "Content-Type": "application/json" } : {}), ...options.headers }
     });
     const data = await response.json().catch(() => ({}));
@@ -85,6 +86,7 @@ async function loadStudentDashboard() {
         ? "Available - all five modules and their required activities are complete."
         : "Locked until all five modules and their required activities are complete.";
     certificateDownload.hidden = !hasOverallCertificate;
+    certificateDownload.href = apiUrl("/api/dashboard/certificate");
 
     for (const module of modules) {
         const card = element("article", null, "module-card");
@@ -99,7 +101,7 @@ async function loadStudentDashboard() {
         if (module.best_score !== null) card.append(element("p", `Best quiz score: ${module.best_score}%`, "muted"));
         if (module.certificate_available) {
             const reward = element("a", null, "button button-secondary certificate-download");
-            reward.href = `/api/modules/${encodeURIComponent(module.id)}/certificate`;
+            reward.href = apiUrl(`/api/modules/${encodeURIComponent(module.id)}/certificate`);
             reward.setAttribute("aria-label", `Download ${module.title} module reward certificate`);
             const rewardIcon = element("i");
             rewardIcon.className = "fi fi-rr-download";

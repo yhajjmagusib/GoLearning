@@ -14,8 +14,9 @@ function el(tag, text, className) {
 }
 
 async function api(url, options = {}) {
-    const response = await fetch(url, {
+    const response = await fetch(apiUrl(url), {
         ...options,
+        credentials: "include",
         headers: { ...(options.body ? { "Content-Type": "application/json" } : {}), ...options.headers }
     });
     const data = await response.json().catch(() => ({}));
@@ -115,7 +116,7 @@ function renderLearningNotes(notes) {
     const uploadedDate = new Date(notes.uploaded_at);
     const dateLabel = Number.isNaN(uploadedDate.getTime()) ? "" : ` Uploaded ${uploadedDate.toLocaleDateString()}.`;
     message.textContent = `${notes.original_file_name}${dateLabel}`;
-    download.href = `/api/modules/${encodeURIComponent(moduleId)}/learning-notes/download`;
+    download.href = apiUrl(`/api/modules/${encodeURIComponent(moduleId)}/learning-notes/download`);
     download.hidden = false;
 }
 
@@ -125,7 +126,7 @@ function renderModuleCertificate(available) {
     status.textContent = available
         ? "Available - you passed the quiz and completed all required assignment conditions."
         : "Locked - pass the quiz and complete any required assignments and approvals to unlock this reward.";
-    download.href = `/api/modules/${encodeURIComponent(moduleId)}/certificate`;
+    download.href = apiUrl(`/api/modules/${encodeURIComponent(moduleId)}/certificate`);
     download.hidden = !available;
 }
 

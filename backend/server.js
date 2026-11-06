@@ -18,6 +18,29 @@ if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32
 const app = express();
 const frontendDirectory = path.join(__dirname, "..", "frontend");
 
+function isAllowedOrigin(origin) {
+    if (!origin) return false;
+    const configuredOrigins = (process.env.FRONTEND_URL || "")
+        .split(",")
+        .map((value) => value.trim().replace(/\/$/, ""))
+        .filter(Boolean);
+    return configuredOrigins.includes(origin)
+        || /^https:\/\/[a-z0-9-]+\.vercel\.app$/i.test(origin);
+}
+
+app.use((req, res, next) => {
+    const origin = req.get("Origin");
+    if (isAllowedOrigin(origin)) {
+        res.setHeader("Access-Control-Allow-Origin", origin);
+        res.setHeader("Access-Control-Allow-Credentials", "true");
+        res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+        res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
+        res.setHeader("Vary", "Origin");
+    }
+    if (req.method === "OPTIONS") return res.sendStatus(204);
+    next();
+});
+
 app.use(express.json({ limit: "1mb" }));
 
 app.get("/api/health", async (req, res, next) => {
@@ -39,8 +62,8 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         httpOnly: true,
-        sameSite: "lax",
-        secure: process.env.NODE_ENV === "production",
+        sameSite: process.env.FRONTEND_URL ? "none" : "lax",
+        secure: process.env.NODE_ENV === "production" || Boolean(process.env.FRONTEND_URL),
         maxAge: 8 * 60 * 60 * 1000
     }
 }));
