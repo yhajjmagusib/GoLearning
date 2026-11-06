@@ -1,16 +1,15 @@
 # GoLearning
 
-GoLearning is a beginner-oriented learning site built with HTML, CSS, vanilla JavaScript, Node.js, Express, and MySQL. The backend serves the frontend pages and API from one local origin.
+GoLearning is a beginner-oriented learning site built with HTML, CSS, vanilla JavaScript, Node.js, Express, and Supabase PostgreSQL. PDF learning notes are stored in the private Supabase Storage `learning-notes` bucket.
 
-## Local setup with XAMPP
+## Local setup with Supabase
 
 Use Node.js 18 or newer.
 
-1. Start **MySQL** in the XAMPP Control Panel. Apache is optional because Express serves the website.
-2. Open phpMyAdmin, select **Import**, and import `database/schema.sql`. It creates the `golearning` database and missing tables without dropping or resetting existing records.
-3. If you imported an older schema, run the applicable migrations in phpMyAdmin: `database/migrations/001_add_module_access_time.sql` if `student_progress.first_accessed_at` is missing, `database/migrations/002_add_complete_module_content.sql` if the two module content columns are missing, `database/migrations/003_add_learning_notes_and_certificates.sql`, `database/migrations/004_add_second_module_video.sql`, and `database/migrations/005_save_checklists_and_update_submissions.sql`. Migration 005 keeps the latest submission for each student and assignment, then prevents duplicate submissions and creates the shared checklist-progress table.
-4. In this folder, copy `.env.example` to `.env`. Set `DB_USER` and `DB_PASSWORD` to the MySQL credentials configured for your XAMPP installation. A common local XAMPP default is `root` with a blank password; use the credentials you actually configured.
-5. Replace `SESSION_SECRET` with a private random value at least 32 characters long. For example, run `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"` in the backend folder, then copy the output into `.env`.
+1. In Supabase SQL Editor, run `database/golearning.supabase.sql` once. This creates the PostgreSQL tables and imports the application data.
+2. In Supabase Storage, create a private bucket named `learning-notes`.
+3. In this folder, copy `.env.example` to `.env`. Set `DATABASE_URL` to the Supabase PostgreSQL connection string, then set `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from Project Settings → API. Keep the service-role key server-side only.
+4. Replace `SESSION_SECRET` with a private random value at least 32 characters long. For example, run `node -e "console.log(require('node:crypto').randomBytes(32).toString('hex'))"` in the backend folder, then copy the output into `.env`.
 6. Install dependencies: `npm install`.
 7. If your database already had lesson rows before the complete-lesson format, run `npm run migrate-legacy-lessons` once after applying migration 002. This copies ordered lesson titles and content into each module's complete lesson content field and leaves every original lesson row intact. The script only fills modules whose complete lesson content is empty.
 8. Seed the five modules, their starter lessons, and one clearly marked development-only quiz question per module: `npm run seed`. The seed is safe to run again; it does not add duplicate modules, lessons, or sample quiz questions. Add or replace sample quiz questions before using the course as final curriculum.
@@ -26,7 +25,7 @@ Do not commit `.env` or share its contents. The provided `.env.example` is only 
 - Role-protected student and administrator API routes.
 - Dashboard and module pages redirect unauthenticated visitors to login; backend authorization remains enforced independently.
 - Student dashboard with module cards, progress, and assignment status grouped by module.
-- Protected admin PDF learning-notes upload, replace, and delete; students with access to a module can download its notes. The upload limit defaults to 10 MB and can be changed with `LEARNING_NOTES_MAX_BYTES`.
+- Protected admin PDF learning-notes upload, replace, and delete through Supabase Storage; students with access to a module receive a short-lived signed download URL. The upload limit defaults to 10 MB and can be changed with `LEARNING_NOTES_MAX_BYTES`.
 - Nameless module reward certificates become available after the existing quiz and required-assignment completion rules are met. The provided `frontend/certificate/Module1-Certificate.jpg` through `Module5-Certificate.jpg` files are used as the rewards.
 - Students who satisfy the existing completion requirements for all five active modules can download a personalized PDF using the supplied `frontend/certificate/CompleteAllModule-Certificate.jpg` template. The student's registered name is read from MySQL, and its first issue date and unique certificate number are saved for subsequent downloads.
 - Database-backed module learning objectives and complete lesson content, with safe text rendering that preserves line breaks. Existing individual lesson rows remain available as a legacy fallback. YouTube embeds use real stored links; modules without a video link say that one is not yet available.

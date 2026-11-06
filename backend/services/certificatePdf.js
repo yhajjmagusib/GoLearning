@@ -42,8 +42,8 @@ function renderCompletionCertificate({ fullName, issuedDate }) {
         });
 
         document.font("Helvetica-Bold").fontSize(18).fillColor("#ffffff")
-            .text(issuedDate, 525, 917, {
-                width: 335,
+            .text(issuedDate, 828, 917, {
+                width: 275,
                 height: 27,
                 align: "center",
                 valign: "center",

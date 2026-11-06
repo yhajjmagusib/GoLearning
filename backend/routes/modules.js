@@ -3,7 +3,8 @@ const crypto = require("node:crypto");
 const path = require("node:path");
 const { pool } = require("../config/database");
 const { requireAuth } = require("../middleware/auth");
-const { LEARNING_NOTES_DIRECTORY, LEARNING_NOTES_MAX_BYTES } = require("../config/learningNotes");
+const { LEARNING_NOTES_MAX_BYTES } = require("../config/learningNotes");
+const { createLearningNotesSignedUrl } = require("../config/supabaseStorage");
 const { gradeQuiz } = require("../services/quiz");
 const { renderCompletionCertificate } = require("../services/certificatePdf");
 
@@ -206,18 +207,10 @@ router.get("/:moduleId/learning-notes/download", async (req, res, next) => {
             [moduleId]
         );
         if (!notes.length) return res.status(404).json({ error: "Learning notes have not been uploaded for this module." });
-        if (!/^[0-9a-f-]{36}\.pdf$/i.test(notes[0].stored_file_name)) {
-            throw new Error("The stored learning notes filename is invalid.");
-        }
-
-        const safeTitle = notes[0].title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "module";
+        const signedUrl = await createLearningNotesSignedUrl(notes[0].stored_file_name);
         res.set("Cache-Control", "no-store");
         res.set("X-Content-Type-Options", "nosniff");
-        res.download(
-            path.join(LEARNING_NOTES_DIRECTORY, notes[0].stored_file_name),
-            `${safeTitle}-learning-notes.pdf`,
-            (error) => { if (error) next(error); }
-        );
+        res.redirect(302, signedUrl);
     } catch (error) {
         next(error);
     }

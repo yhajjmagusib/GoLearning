@@ -1,19 +1,19 @@
 const express = require("express");
-const crypto = require("node:crypto");
-const fs = require("node:fs/promises");
 const path = require("node:path");
 const multer = require("multer");
 const { pool } = require("../config/database");
-const { LEARNING_NOTES_DIRECTORY, LEARNING_NOTES_MAX_BYTES } = require("../config/learningNotes");
+const { LEARNING_NOTES_MAX_BYTES } = require("../config/learningNotes");
+const {
+    newLearningNotesFileName,
+    removeLearningNotesFile,
+    uploadLearningNotes
+} = require("../config/supabaseStorage");
 const { refreshModuleCompletion } = require("./modules");
 
 const router = express.Router();
 
 const learningNotesUpload = multer({
-    storage: multer.diskStorage({
-        destination: LEARNING_NOTES_DIRECTORY,
-        filename: (req, file, callback) => callback(null, `${crypto.randomUUID()}.pdf`)
-    }),
+    storage: multer.memoryStorage(),
     limits: { fileSize: LEARNING_NOTES_MAX_BYTES, files: 1 },
     fileFilter: (req, file, callback) => {
         if (file.mimetype !== "application/pdf" || path.extname(file.originalname).toLowerCase() !== ".pdf") {
@@ -24,15 +24,6 @@ const learningNotesUpload = multer({
         callback(null, true);
     }
 });
-
-async function removeLearningNotesFile(fileName) {
-    if (!fileName || !/^[0-9a-f-]{36}\.pdf$/i.test(fileName)) return;
-    try {
-        await fs.unlink(path.join(LEARNING_NOTES_DIRECTORY, fileName));
-    } catch (error) {
-        if (error.code !== "ENOENT") throw error;
-    }
-}
 
 function validId(value) {
     const id = Number(value);
@@ -288,25 +279,17 @@ router.post("/modules/:moduleId/learning-notes", (req, res, next) => {
     });
 }, async (req, res, next) => {
     const moduleId = validId(req.params.moduleId);
-    if (!moduleId) {
-        if (req.file) await removeLearningNotesFile(req.file.filename);
-        return res.status(400).json({ error: "Invalid module." });
-    }
+    if (!moduleId) return res.status(400).json({ error: "Invalid module." });
     if (!req.file) return res.status(400).json({ error: "Choose a PDF file to upload." });
 
-    let fileHandle;
+    const storedFileName = newLearningNotesFileName();
+    const originalFileName = path.basename(req.file.originalname).slice(0, 255);
     try {
-        fileHandle = await fs.open(req.file.path, "r");
-        const signature = Buffer.alloc(5);
-        const { bytesRead } = await fileHandle.read(signature, 0, signature.length, 0);
-        if (bytesRead !== signature.length || signature.toString("ascii") !== "%PDF-") {
-            await fileHandle.close();
-            fileHandle = null;
-            await removeLearningNotesFile(req.file.filename);
+        if (req.file.buffer.subarray(0, 5).toString("ascii") !== "%PDF-") {
             return res.status(400).json({ error: "The uploaded file is not a valid PDF." });
         }
-        await fileHandle.close();
-        fileHandle = null;
+
+        await uploadLearningNotes(req.file.buffer, storedFileName);
 
         const connection = await pool.getConnection();
         let committed = false;
@@ -318,7 +301,7 @@ router.post("/modules/:moduleId/learning-notes", (req, res, next) => {
             );
             if (!moduleRows.length) {
                 await connection.rollback();
-                await removeLearningNotesFile(req.file.filename);
+                await removeLearningNotesFile(storedFileName);
                 return res.status(404).json({ error: "Module not found." });
             }
             const [existingNotes] = await connection.execute(
@@ -334,17 +317,17 @@ router.post("/modules/:moduleId/learning-notes", (req, res, next) => {
                     stored_file_name = VALUES(stored_file_name),
                     file_size = VALUES(file_size),
                     uploaded_at = CURRENT_TIMESTAMP`,
-                [moduleId, path.basename(req.file.originalname).slice(0, 255), req.file.filename, req.file.size]
+                [moduleId, originalFileName, storedFileName, req.file.size]
             );
             await connection.commit();
             committed = true;
             await removeLearningNotesFile(existingNotes[0]?.stored_file_name);
-            res.status(201).json({ message: "Learning notes uploaded.", fileName: path.basename(req.file.originalname) });
+            res.status(201).json({ message: "Learning notes uploaded.", fileName: originalFileName });
         } catch (error) {
             if (!committed) await connection.rollback();
             if (!committed) {
                 try {
-                    await removeLearningNotesFile(req.file.filename);
+                    await removeLearningNotesFile(storedFileName);
                 } catch (cleanupError) {
                     console.error("Could not remove a failed learning notes upload:", cleanupError);
                 }
@@ -354,13 +337,10 @@ router.post("/modules/:moduleId/learning-notes", (req, res, next) => {
             connection.release();
         }
     } catch (error) {
-        if (fileHandle) await fileHandle.close();
-        if (req.file) {
-            try {
-                await removeLearningNotesFile(req.file.filename);
-            } catch (cleanupError) {
-                console.error("Could not remove a failed learning notes upload:", cleanupError);
-            }
+        try {
+            await removeLearningNotesFile(storedFileName);
+        } catch (cleanupError) {
+            console.error("Could not remove a failed learning notes upload:", cleanupError);
         }
         next(error);
     }
