@@ -23,8 +23,8 @@ router.post("/register", async (req, res, next) => {
         if (fullName.length < 2 || fullName.length > 160) {
             return res.status(400).json({ error: "Enter a name between 2 and 160 characters." });
         }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254) {
-            return res.status(400).json({ error: "Enter a valid email address." });
+        if (!/^[^\s@]+@gmail\.com$/i.test(email) || email.length > 254) {
+            return res.status(400).json({ error: "Use a valid @gmail.com email address." });
         }
         if (password.length < 8 || password.length > 72) {
             return res.status(400).json({ error: "Password must be between 8 and 72 characters." });
@@ -65,7 +65,7 @@ router.post("/register", async (req, res, next) => {
 
         res.status(201).json({ user: publicUser(user) });
     } catch (error) {
-        if (error.code === "ER_DUP_ENTRY") {
+        if (error.code === "ER_DUP_ENTRY" || error.code === "23505") {
             return res.status(409).json({ error: "An account with this email already exists." });
         }
         next(error);
@@ -81,7 +81,7 @@ router.post("/login", async (req, res, next) => {
             [email]
         );
 
-        if (!users.length || !(await bcrypt.compare(password, users[0].password_hash))) {
+        if (!/^[^\s@]+@gmail\.com$/i.test(email) || !users.length || !(await bcrypt.compare(password, users[0].password_hash))) {
             return res.status(401).json({ error: "Email or password is incorrect." });
         }
 

@@ -122,7 +122,7 @@ app.use((error, req, res, next) => {
     if (Number.isInteger(error.statusCode) && error.statusCode >= 400 && error.statusCode < 500) {
         return res.status(error.statusCode).json({ error: error.message });
     }
-    if (error.code === "ER_DUP_ENTRY") {
+    if (error.code === "ER_DUP_ENTRY" || error.code === "23505") {
         return res.status(409).json({ error: "That value already exists." });
     }
     if (error.code === "ER_NO_REFERENCED_ROW_2") {

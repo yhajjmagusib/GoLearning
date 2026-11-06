@@ -37,6 +37,9 @@ if (authForm) {
             : { email: form.get("email"), password };
 
         try {
+            if (!/^[^\s@]+@gmail\.com$/i.test(String(payload.email || "").trim())) {
+                throw new Error("Please use a valid @gmail.com email address.");
+            }
             const response = await fetch(apiUrl(`/api/auth/${isRegistration ? "register" : "login"}`), {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -46,10 +49,16 @@ if (authForm) {
             const result = await response.json();
             clearAuthForm();
             if (!response.ok) throw new Error(result.error || "Unable to sign in.");
-            window.location.assign("dashboard.html");
+            window.alert(isRegistration
+                ? "Registration successful! You can now log in."
+                : "Login successful! Welcome to GoLearning.");
+            window.location.assign(isRegistration ? "login.html" : "dashboard.html");
         } catch (error) {
             clearAuthForm();
             message.textContent = error.message;
+            if (!isRegistration) {
+                window.alert(error.message);
+            }
         }
     });
 }
