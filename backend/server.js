@@ -16,6 +16,9 @@ if (!process.env.SESSION_SECRET || process.env.SESSION_SECRET.length < 32
 }
 
 const app = express();
+// Render terminates HTTPS at its proxy. Trust it so express-session can set
+// Secure cookies for the Vercel frontend.
+app.set("trust proxy", 1);
 const frontendDirectory = path.join(__dirname, "..", "frontend");
 const crossOriginDeployment = process.env.NODE_ENV === "production"
     || process.env.RENDER === "true"
