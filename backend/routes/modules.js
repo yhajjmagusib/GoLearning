@@ -57,10 +57,10 @@ async function isOverallCourseComplete(connection, studentId) {
     if (activeModules.length !== 5
         || activeModules.some((module, index) => Number(module.module_order) !== index + 1)) return false;
 
-    for (const module of activeModules) {
-        if (!await isModuleComplete(connection, studentId, module.id)) return false;
-    }
-    return true;
+    const completionStates = await Promise.all(
+        activeModules.map((module) => isModuleComplete(connection, studentId, module.id))
+    );
+    return completionStates.every(Boolean);
 }
 
 async function refreshModuleCompletion(connection, studentId, moduleId) {
@@ -69,7 +69,8 @@ async function refreshModuleCompletion(connection, studentId, moduleId) {
     await connection.execute(
         `INSERT INTO student_progress (student_id, module_id, is_completed, is_unlocked, completed_at)
          VALUES (?, ?, TRUE, TRUE, CURRENT_TIMESTAMP)
-         ON DUPLICATE KEY UPDATE is_completed = TRUE, completed_at = COALESCE(completed_at, CURRENT_TIMESTAMP)`,
+         ON DUPLICATE KEY UPDATE is_completed = TRUE,
+             completed_at = COALESCE(student_progress.completed_at, CURRENT_TIMESTAMP)`,
         [studentId, moduleId]
     );
 
@@ -531,11 +532,14 @@ dashboardRouter.get("/summary", async (req, res, next) => {
                  WHERE m.is_active = TRUE ORDER BY m.module_order`,
                 [studentId, studentId]
             );
-            for (const module of modules) {
-                module.certificate_available = Number(module.module_order) >= 1
-                    && Number(module.module_order) <= 5
-                    && await isModuleComplete(pool, studentId, module.id);
-            }
+            const completionStates = await Promise.all(modules.map((module) => (
+                Number(module.module_order) >= 1 && Number(module.module_order) <= 5
+                    ? isModuleComplete(pool, studentId, module.id)
+                    : false
+            )));
+            modules.forEach((module, index) => {
+                module.certificate_available = completionStates[index];
+            });
             const [assignments] = await pool.execute(
                 `SELECT a.title, a.module_id, a.is_required, a.requires_approval,
                         s.submission_text, s.status, s.admin_feedback, s.submitted_at

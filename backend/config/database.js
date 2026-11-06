@@ -11,7 +11,9 @@ const pgPool = new Pool({
         : undefined,
     max: Number(process.env.DB_POOL_MAX || 5),
     idleTimeoutMillis: 30_000,
-    connectionTimeoutMillis: 10_000
+    connectionTimeoutMillis: 10_000,
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10_000
 });
 
 const insertIdTables = new Set(["users", "modules", "lessons", "quizzes", "assignments"]);
