@@ -51,10 +51,18 @@ function metadata(result) {
     return { affectedRows: result.rowCount, insertId: result.rows[0]?.id };
 }
 
+function rowsWithMetadata(result) {
+    // mysql2 returns metadata as the first value for INSERT/UPDATE/DELETE,
+    // while SELECT returns rows. Keep both calling styles working during the
+    // PostgreSQL migration.
+    Object.assign(result.rows, metadata(result));
+    return result.rows;
+}
+
 function makeConnection(client) {
     async function execute(sql, parameters = []) {
         const result = await client.query(translateMySqlToPostgres(sql), parameters);
-        return [result.rows, metadata(result)];
+        return [rowsWithMetadata(result), metadata(result)];
     }
     return {
         execute,
@@ -69,11 +77,11 @@ function makeConnection(client) {
 const pool = {
     async execute(sql, parameters = []) {
         const result = await pgPool.query(translateMySqlToPostgres(sql), parameters);
-        return [result.rows, metadata(result)];
+        return [rowsWithMetadata(result), metadata(result)];
     },
     async query(sql, parameters = []) {
         const result = await pgPool.query(translateMySqlToPostgres(sql), parameters);
-        return [result.rows, metadata(result)];
+        return [rowsWithMetadata(result), metadata(result)];
     },
     async getConnection() { return makeConnection(await pgPool.connect()); },
     async end() { await pgPool.end(); }
