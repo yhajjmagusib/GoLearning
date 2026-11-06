@@ -224,6 +224,13 @@ h1 {
     }
 }
 
+@media (max-width: 380px) {
+    body { padding: 10px; }
+    .main-panel { padding: 24px 16px; }
+    .about-copy { padding: 26px 18px; }
+    .join-btn { width: 100%; min-width: 0; }
+}
+
 @media (max-height: 520px) {
     body {
         padding-block: 10px;

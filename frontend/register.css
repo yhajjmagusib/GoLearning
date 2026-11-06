@@ -216,6 +216,14 @@ a:focus-visible {
     }
 }
 
+@media (max-width: 360px) {
+    body { padding: 10px; }
+    .auth-card { padding: 20px 16px; }
+    .brand { margin-bottom: 16px; }
+    .brand img { width: 58px; height: 58px; }
+    .auth-form { gap: 13px; }
+}
+
 @media (max-height: 800px) {
     body {
         padding-block: 12px;

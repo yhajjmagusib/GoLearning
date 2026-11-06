@@ -42,6 +42,11 @@
     .site-nav {
         top: 12px;
         min-height: 48px;
+        width: calc(100% - 24px);
+        padding: 7px 12px;
+        gap: 14px;
         justify-content: center;
     }
+
+    .site-nav a { font-size: .86rem; }
 }

@@ -253,7 +253,7 @@ function bindLearningNotesForm() {
         const submitButton = form.querySelector('button[type="submit"]');
         const closers = dialog.querySelectorAll("[data-close-dialog]");
         form.dataset.saving = "true";
-        submitButton.disabled = true;
+        setButtonLoading(submitButton, true);
         closers.forEach((button) => { button.disabled = true; });
         notice.textContent = "";
         notice.classList.remove("notice-error");
@@ -274,7 +274,7 @@ function bindLearningNotesForm() {
             notice.classList.add("notice-error");
         } finally {
             delete form.dataset.saving;
-            submitButton.disabled = false;
+            setButtonLoading(submitButton, false);
             closers.forEach((button) => { button.disabled = false; });
         }
     });
@@ -410,7 +410,7 @@ async function handleDialogSubmit(form, operation, successMessage) {
         const submitButton = form.querySelector('button[type="submit"]');
         const closers = dialog.querySelectorAll("[data-close-dialog]");
         const notice = form.querySelector(".dialog-message");
-        submitButton.disabled = true;
+        setButtonLoading(submitButton, true);
         closers.forEach((button) => { button.disabled = true; });
         dialog.dataset.saving = "true";
         if (notice) notice.textContent = "";
@@ -433,7 +433,7 @@ async function handleDialogSubmit(form, operation, successMessage) {
             }
         } finally {
             delete dialog.dataset.saving;
-            submitButton.disabled = false;
+            setButtonLoading(submitButton, false);
             closers.forEach((button) => { button.disabled = false; });
         }
     });

@@ -260,3 +260,25 @@ button:hover, .button:hover { background: var(--brand-dark); color: white; }
         transition-duration: 0.01ms !important;
     }
 }
+
+@media (max-width: 680px) {
+    html, body { overflow-x: hidden; }
+    .app-header { flex-wrap: wrap; gap: 10px 14px; }
+    .app-brand { min-width: 0; font-size: .96rem; }
+    .app-brand span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .header-actions { margin-left: auto; flex-direction: row; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+    .header-actions a, .header-actions button { min-height: 38px; padding: 8px 10px; font-size: .86rem; }
+    .app-main { width: calc(100% - 24px); padding: 22px 0 48px; }
+    .page-heading { margin-bottom: 24px; }
+    .page-heading h1 { font-size: clamp(1.8rem, 9vw, 2.45rem); overflow-wrap: anywhere; }
+    .section-heading h2, .panel h2 { font-size: 1.35rem; }
+    .course-progress { align-items: stretch; flex-direction: column; gap: 7px; }
+    .course-progress progress { width: 100%; }
+    .module-card, .panel, .stat-card { padding: 17px; }
+    .form-actions > *, .module-row-actions button, .module-management-actions button { flex: 1 1 100%; width: 100%; }
+    .quiz-dialog, .management-dialog { width: calc(100% - 20px); max-height: calc(100svh - 20px); padding: 16px; }
+    .dialog-heading { align-items: flex-start; }
+    .dialog-heading h2 { font-size: 1.25rem; overflow-wrap: anywhere; }
+    .long-content-field { min-height: 190px; }
+    .lesson, .assignment-card, .module-management-item { padding: 14px; }
+}

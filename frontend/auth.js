@@ -21,6 +21,9 @@ if (authForm) {
 
     authForm.addEventListener("submit", async (event) => {
         event.preventDefault();
+        const submitButton = event.submitter || authForm.querySelector('button[type="submit"]');
+        if (submitButton.disabled) return;
+        setButtonLoading(submitButton, true);
         message.textContent = "";
         const form = new FormData(authForm);
         const isRegistration = authForm.id === "register-form";
@@ -59,6 +62,8 @@ if (authForm) {
             if (!isRegistration) {
                 window.alert(error.message);
             }
+        } finally {
+            setButtonLoading(submitButton, false);
         }
     });
 }

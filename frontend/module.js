@@ -545,7 +545,7 @@ function renderStudentSubmission(card, assignment) {
     form.append(submit);
     form.addEventListener("submit", async (event) => {
         event.preventDefault();
-        submit.disabled = true;
+        setButtonLoading(submit, true);
         try {
             const result = await api(`/api/modules/${moduleId}/assignments/${assignment.id}/submissions`, {
                 method: "POST",
@@ -562,7 +562,7 @@ function renderStudentSubmission(card, assignment) {
             }
         } catch (error) {
             showMessage(error.message, true);
-            submit.disabled = false;
+            setButtonLoading(submit, false);
         }
     });
     card.append(form);
@@ -641,7 +641,7 @@ function bindDialogCloseButtons() {
 function setDialogSaving(dialog, saving) {
     if (saving) dialog.dataset.saving = "true";
     else delete dialog.dataset.saving;
-    dialog.querySelectorAll("button").forEach((button) => { button.disabled = saving; });
+    dialog.querySelectorAll("button").forEach((button) => setButtonLoading(button, saving));
 }
 
 function bindDialogForm(form, endpoint, payloadForData, afterSave) {
@@ -798,7 +798,7 @@ document.querySelector("#quiz-form").addEventListener("submit", async (event) =>
         return;
     }
     const submitButton = document.querySelector("#quiz-form button[type=submit]");
-    submitButton.disabled = true;
+    setButtonLoading(submitButton, true);
     try {
         const result = await api(`/api/modules/${moduleId}/quiz/submit`, {
             method: "POST",
@@ -829,7 +829,7 @@ document.querySelector("#quiz-form").addEventListener("submit", async (event) =>
         popupResult.classList.add("notice-error");
         popupResult.hidden = false;
     } finally {
-        if (!submitButton.hidden) submitButton.disabled = false;
+        if (!submitButton.hidden) setButtonLoading(submitButton, false);
     }
 });
 
