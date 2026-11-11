@@ -5,7 +5,7 @@
     --green: = #17684f;
     --green-dark: #10513f;
     --lime: #d7ed83;
-    --line: rgba(255, 255, 255, 0.26);
+    --line: rgba(52, 192, 45, 0.26);
     --shadow: rgba(10, 31, 25, 0.3);
 }
 
@@ -96,7 +96,7 @@ h1 {
     border: 1px solid var(--green);
     border-radius: 6px;
     background: var(--green);
-    color: #fff;
+    color: #050505;
     font-size: 0.98rem;
     font-weight: 700;
     text-decoration: none;
