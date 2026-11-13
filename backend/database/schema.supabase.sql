@@ -1,5 +1,4 @@
--- GoLearning PostgreSQL schema for Supabase.
--- The original MySQL schema remains in schema.sql.
+
 
 CREATE TYPE user_role AS ENUM ('student', 'admin');
 CREATE TYPE submission_status AS ENUM ('submitted', 'pending', 'approved', 'rejected');
